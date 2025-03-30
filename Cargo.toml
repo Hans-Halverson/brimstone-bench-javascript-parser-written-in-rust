@@ -26,7 +26,7 @@ oxc = "0.61.2"
 swc_ecma_parser = { version = "10.0.2", features = ["typescript"] }
 swc_ecma_ast = "8.0.2"
 
-brimstone = { workspace = true, default-features = false }
+brimstone = { workspace = true, features = ["no_jemalloc"] }
 
 num_cpus = "1.16.0"
 criterion2  = { version = "3.0.0", default-features = false }
