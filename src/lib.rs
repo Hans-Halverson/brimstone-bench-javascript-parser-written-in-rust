@@ -20,10 +20,7 @@ pub mod swc {
     pub fn parse(path: &Path, source: &str) -> Module {
         let syntax = match path.extension().unwrap().to_str().unwrap() {
             "js" => Syntax::Es(EsSyntax::default()),
-            "tsx" => Syntax::Typescript(TsSyntax {
-                tsx: true,
-                ..TsSyntax::default()
-            }),
+            "tsx" => Syntax::Typescript(TsSyntax { tsx: true, ..TsSyntax::default() }),
             _ => panic!("need to define syntax  for swc"),
         };
         let input = StringInput::new(source, Default::default(), Default::default());
@@ -31,15 +28,22 @@ pub mod swc {
     }
 }
 
-pub mod biome {
-    use std::path::Path;
+pub mod brimstone {
+    use std::{path::Path, rc::Rc};
 
-    use biome_js_parser::{JsParserOptions, Parse};
-    use biome_js_syntax::{AnyJsRoot, JsFileSource};
+    use brimstone::js::{
+        common::{options::OptionsBuilder, wtf_8::Wtf8String},
+        parser::{parse_script, source::Source, ParseContext},
+    };
 
-    pub fn parse(path: &Path, source: &str) -> Parse<AnyJsRoot> {
-        let options = JsParserOptions::default();
-        let source_type = JsFileSource::try_from(path).unwrap();
-        biome_js_parser::parse(source, source_type, options)
+    pub fn parse(_: &Path, source: &str) -> ParseContext {
+        let options = Rc::new(OptionsBuilder::new().annex_b(true).build());
+        let source =
+            Rc::new(Source::new_for_eval(String::new(), Wtf8String::from_str(source)).unwrap());
+        let pcx = ParseContext::new(source);
+
+        let _ = parse_script(&pcx, options).unwrap();
+
+        pcx
     }
 }

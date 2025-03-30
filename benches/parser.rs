@@ -16,9 +16,7 @@ trait TheBencher {
     fn bench(g: &mut BenchmarkGroup<'_, WallTime>, path: &Path, source: &str) {
         let cpus = num_cpus::get_physical();
         let id = BenchmarkId::new(Self::ID, "single-thread");
-        g.bench_with_input(id, &source, |b, source| {
-            b.iter(|| Self::parse(path, source))
-        });
+        g.bench_with_input(id, &source, |b, source| b.iter(|| Self::parse(path, source)));
 
         let id = BenchmarkId::new(Self::ID, "no-drop");
         g.bench_with_input(id, &source, |b, source| {
@@ -60,27 +58,27 @@ impl TheBencher for SwcBencher {
     }
 }
 
-struct BiomeBencher;
+struct BrimstoneBencher;
 
-impl TheBencher for BiomeBencher {
-    type ParseOutput = biome_js_parser::Parse<biome_js_syntax::AnyJsRoot>;
+impl TheBencher for BrimstoneBencher {
+    type ParseOutput = brimstone::js::parser::ParseContext;
 
-    const ID: &'static str = "biome";
+    const ID: &'static str = "brimstone";
 
     fn parse(path: &Path, source: &str) -> Self::ParseOutput {
-        bench_parser::biome::parse(path, source)
+        bench_parser::brimstone::parse(path, source)
     }
 }
 
 fn parser_benchmark(c: &mut Criterion) {
-    let filenames = ["typescript.js", "cal.com.tsx"];
+    let filenames = ["typescript.js"];
     for filename in filenames {
         let path = Path::new("files").join(filename);
         let source = std::fs::read_to_string(&path).unwrap();
         let mut g = c.benchmark_group(filename);
         OxcBencher::bench(&mut g, &path, &source);
         SwcBencher::bench(&mut g, &path, &source);
-        BiomeBencher::bench(&mut g, &path, &source);
+        BrimstoneBencher::bench(&mut g, &path, &source);
         g.finish();
     }
 }

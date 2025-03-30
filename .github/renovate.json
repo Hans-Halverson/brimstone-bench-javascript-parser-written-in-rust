@@ -18,13 +18,6 @@
       "schedule": ["at any time"],
       "automergeType": "pr",
       "rangeStrategy": "bump"
-    },
-    {
-      "groupName": "biome",
-      "matchPackagePrefixes": ["biome"],
-      "schedule": ["at any time"],
-      "automergeType": "pr",
-      "rangeStrategy": "bump"
     }
   ]
 }
